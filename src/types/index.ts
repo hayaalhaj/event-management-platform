@@ -52,3 +52,10 @@ export interface EventsQuery {
   dateFrom?: string;
   dateTo?: string;
 }
+export interface JwtPayload {
+  sub: number;
+  email: string;
+  role: UserRole;
+  iat: number;
+  exp: number;
+}
