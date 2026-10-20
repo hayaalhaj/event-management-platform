@@ -59,3 +59,20 @@ export interface JwtPayload {
   iat: number;
   exp: number;
 }
+export interface EventDetails extends EventItem {
+  registrationCount: number;
+}
+
+export interface RegisterPayload {
+  linkedinProfile?: string;
+  educationLevel?: EducationLevel;
+  motivation?: string;
+}
+
+export interface RegistrationResponse {
+  message: string;
+  registrationId: number;
+  status: RegistrationStatus;
+  eventId: number;
+  userId: number;
+}
