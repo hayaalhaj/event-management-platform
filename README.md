@@ -179,6 +179,25 @@ The layers are intentionally separate: **services** talk to the API, **hooks** m
 
 ---
 
+## Performance and Bundle Analysis
+
+The production bundle was analyzed with Next.js's built-in Turbopack bundle analyzer (`npx next experimental-analyze`).
+
+**Findings**
+- Most of the JavaScript is the framework itself (`next` ≈ 274 KB and `react-dom` ≈ 62 KB in the analyzer's estimates). The application's own code is small (≈ 30 KB on the admin route).
+- The largest third-party libraries are `zod` (≈ 66 KB), `axios` (≈ 49 KB), Radix UI primitives (≈ 45–49 KB), `react-hook-form` (≈ 22 KB) and `sonner` (≈ 18 KB).
+- The App Router already splits code per route, so form libraries are not loaded on pages without forms (for example `/events`).
+
+**What was done**
+- The registration form (`react-hook-form` + `zod`) and the delete-confirmation dialog are loaded on demand with `next/dynamic`, with skeleton/disabled-button fallbacks to avoid layout shifts.
+- Result on `/events/[id]`: the route's total code is ≈ 485 KB, of which ≈ 361 KB is initial load; `zod` and `react-hook-form` (≈ 88 KB) are no longer part of the first load. For comparison, `/events` is ≈ 431 KB initial of ≈ 473 KB total and `/admin` is ≈ 438 KB initial of ≈ 480 KB total.
+- These are the analyzer's estimates, not a controlled before/after benchmark.
+
+**Ideas for further reduction**
+- Replace `axios` with a thin `fetch` wrapper (≈ 49 KB in the analyzer).
+- Use `zod/mini` or a lighter validation approach.
+- Lazy-load the toast library until the first notification.
+
 ## Assumptions, Limitations and Trade-offs
 
 ### Assumptions
@@ -197,7 +216,7 @@ The layers are intentionally separate: **services** talk to the API, **hooks** m
 - **Token storage.** The token is stored in `localStorage` (via Zustand `persist`). This is simple and survives reloads, but it is exposed to XSS, unlike an `httpOnly` cookie. A cookie-based session would need API support.
 - **Route protection is client-side.** Because the token lives in the browser, the server cannot know who is logged in. Protected pages show a loading state and redirect from the client. No private data is rendered before authentication, since data is only requested after the guard passes.
 - **No reject action.** The API exposes only an approve endpoint, so administrators cannot reject registrations. A `REJECTED` status is rendered if the API returns one.
-- **Not implemented:** editing events (the API supports `PATCH /events/{id}`, but the specification did not require it), the audit log endpoint, localization (English/Arabic with RTL), bundle analysis, and automated tests.
+- **Not implemented:** editing events (the API supports `PATCH /events/{id}`, but the specification did not require it), the audit log endpoint, localization (English/Arabic with RTL), and automated tests.
 - **Registration status after refresh.** The event details page does not check whether the current user already registered. A duplicate attempt is rejected by the API and its message is shown in a toast.
 
 ### Trade-offs
@@ -211,7 +230,6 @@ The layers are intentionally separate: **services** talk to the API, **hooks** m
 ### Improvements with more time
 
 - Add English/Arabic localization with RTL layout, including translatable API error messages.
-- Analyze and reduce the bundle (bundle analyzer, route-level lazy loading of heavy components).
 - Introduce TanStack Query for caching and request deduplication, and optimistic updates for approvals.
 - Add unit and integration tests (validation schemas, hooks, guard logic) and end-to-end tests of the registration flow.
 - Move the session to an `httpOnly` cookie with refresh tokens if the API supports it.

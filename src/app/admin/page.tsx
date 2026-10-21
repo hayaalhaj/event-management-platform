@@ -6,7 +6,7 @@ import Link from "next/link";
 import { AuthGuard } from "@/components/auth-guard";
 import { Navbar } from "@/components/navbar";
 import { EventFilters, type EventFiltersValue } from "@/components/event-filters";
-import { DeleteEventDialog } from "@/components/delete-event-dialog";
+import dynamic from "next/dynamic";
 import { Pagination } from "@/components/pagination";
 import { useAdminEvents } from "@/hooks/use-admin-events";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -29,7 +29,17 @@ import {
 
 import type { EventItem } from "@/types";
 import { cn } from "@/lib/utils";
-
+const DeleteEventDialog = dynamic(
+  () =>
+    import("@/components/delete-event-dialog").then((m) => m.DeleteEventDialog),
+  {
+    loading: () => (
+      <Button variant="destructive" size="sm" disabled>
+        Delete
+      </Button>
+    ),
+  }
+);
 const PAGE_SIZE = 10;
 
 const DEFAULT_FILTERS: EventFiltersValue = {

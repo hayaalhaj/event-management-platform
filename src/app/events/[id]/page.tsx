@@ -1,12 +1,11 @@
 "use client";
-
+import dynamic from "next/dynamic";
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { AuthGuard } from "@/components/auth-guard";
 import { Navbar } from "@/components/navbar";
-import { RegistrationForm } from "@/components/registration-form";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +18,12 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useEvent } from "@/hooks/use-event";
 import { formatEventDate, isFullEvent, isPastEvent } from "@/lib/events";
+
+const RegistrationForm = dynamic(
+  () =>
+    import("@/components/registration-form").then((m) => m.RegistrationForm),
+  { loading: () => <Skeleton className="h-64 w-full" /> }
+);
 
 function EventDetailsContent() {
   const params = useParams<{ id: string }>();
