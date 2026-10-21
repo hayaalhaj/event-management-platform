@@ -218,7 +218,7 @@ The production bundle was analyzed with Next.js's built-in Turbopack bundle anal
 - **No reject action.** The API exposes only an approve endpoint, so administrators cannot reject registrations. A `REJECTED` status is rendered if the API returns one.
 - **Not implemented:** editing events (the API supports `PATCH /events/{id}`, but the specification did not require it), the audit log endpoint, localization (English/Arabic with RTL), and automated tests.
 - **Registration status after refresh.** The event details page does not check whether the current user already registered. A duplicate attempt is rejected by the API and its message is shown in a toast.
-
+- **Deleting events with registrations.** Deleting an event that already has registrations makes the API respond with a `500 Internal Server Error` (events without registrations are deleted normally). The UI handles this safely: the error is shown in a toast, the event stays in the list and the dialog remains open. This looks like a server-side constraint, so it is documented here rather than worked around.
 ### Trade-offs
 
 - **Client-side data fetching with custom hooks** instead of React Query/SWR. It keeps dependencies small and the data flow easy to follow, and includes cancellation of stale requests. The cost is no caching, deduplication or background refetching.
