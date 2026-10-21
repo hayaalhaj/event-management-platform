@@ -76,3 +76,38 @@ export interface RegistrationResponse {
   eventId: number;
   userId: number;
 }
+export interface CreateEventPayload {
+  name: string;
+  description: string;
+  max_attendees: number;
+  event_date: string;
+  event_type: EventType;
+}
+export interface RegistrationUser {
+  id: number;
+  email: string;
+  role: UserRole;
+}
+
+export interface EventRegistration {
+  id: number;
+  status: RegistrationStatus;
+  registered_at: string;
+  linkedin_profile: string | null;
+  education_level: EducationLevel | null;
+  motivation: string | null;
+  user: RegistrationUser;
+}
+
+export interface PaginatedRegistrations {
+  message: string;
+  attendees: EventRegistration[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+  nextPage: number | null;
+  prevPage: number | null;
+}

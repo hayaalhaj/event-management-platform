@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import type { EventItem, EventsQuery, Paginated } from "@/types";
 import type { EventDetails } from "@/types";
 import type { AttendedEvent } from "@/types";
+import type { CreateEventPayload } from "@/types";
 
 function cleanParams(query: EventsQuery) {
   return Object.fromEntries(
@@ -25,4 +26,19 @@ export async function getAttendedEvents() {
     "/events/attended"
   );
   return data.events;
+}
+export async function getAllEvents(query: EventsQuery) {
+  const { data } = await api.get<Paginated<EventItem>>("/events", {
+    params: cleanParams(query),
+  });
+  return data;
+}
+
+export async function createEvent(payload: CreateEventPayload) {
+  const { data } = await api.post("/events", payload);
+  return data;
+}
+
+export async function deleteEvent(id: number) {
+  await api.delete(`/events/${id}`);
 }
