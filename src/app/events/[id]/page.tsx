@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import { useEvent } from "@/hooks/use-event";
 import { formatEventDate, isFullEvent, isPastEvent } from "@/lib/events";
 
@@ -24,6 +25,7 @@ function EventDetailsContent() {
   const id = Number(params.id);
   const { event, loading, error, notFound, refetch } = useEvent(id);
   const [submitted, setSubmitted] = useState(false);
+  const { role } = useAuth();
 
   const backLink = (
     <Link
@@ -104,7 +106,20 @@ function EventDetailsContent() {
           <CardTitle>Registration</CardTitle>
         </CardHeader>
         <CardContent>
-          {submitted ? (
+          {role === "ADMIN" ? (
+            <div className="space-y-3 text-sm">
+              <p className="text-muted-foreground">
+                Admins manage events and can&apos;t register for them. Use the
+                dashboard to review this event&apos;s registrations.
+              </p>
+              <Link
+                href={`/admin/events/${event.id}/registrations`}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                View registrations
+              </Link>
+            </div>
+          ) : submitted ? (
             <p className="text-sm">
               Your registration was submitted and is pending admin approval. You
               can track it from your registrations page.
